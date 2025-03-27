@@ -2,60 +2,86 @@ import React, { useState } from 'react';
 import { View, Text, Button, TextInput, Alert } from 'react-native';
 
 export default function TicketValidationApp() {
+  // Estado para controlar o tempo personalizado inserido pelo usuário
   const [customTime, setCustomTime] = useState('');
+
+  // Estado para controlar o custo total do ticket
   const [totalCost, setTotalCost] = useState(0);
+
+  // Estado para controlar a visibilidade do campo de input de tempo personalizado
   const [isInputVisible, setInputVisible] = useState(false);
 
+  // Função que é chamada quando o usuário clica no botão de 1 minuto
+  // O custo de 1 minuto é fixo em R$ 3,00
   const handleOneMinuteTicket = () => {
     setTotalCost(3); // 1 minuto custa R$ 3,00
   };
 
+  // Função que é chamada quando o usuário clica no botão de 2 minutos
+  // O custo de 2 minutos é fixo em R$ 5,00
   const handleTwoMinutesTicket = () => {
     setTotalCost(5); // 2 minutos custam R$ 5,00
   };
 
+  // Função que exibe o campo de input para o usuário inserir o tempo desejado
   const handleCustomTimeTicket = () => {
-    setInputVisible(true); // Exibe o input para o usuário digitar o tempo
+    setInputVisible(true); // Torna o campo de input visível
   };
 
+  // Função que lida com o cálculo do custo quando o usuário insere o tempo personalizado
   const handleTimeInput = () => {
+    // Converte o valor inserido no campo para um número inteiro
     const timeInMinutes = parseInt(customTime, 10);
 
+    // Verifica se o tempo inserido é um número válido e maior ou igual a 2 minutos
     if (isNaN(timeInMinutes) || timeInMinutes < 2) {
+      // Exibe uma mensagem de erro caso o valor seja inválido ou menor que 2 minutos
       Alert.alert('Erro', 'O tempo deve ser maior que 2 minutos!');
-      return;
+      return; // Interrompe a execução se o valor não for válido
     }
 
-    let cost = 5; // Os 2 primeiros minutos custam R$ 5,00
+    let cost = 5; // O custo dos primeiros 2 minutos é fixo em R$ 5,00
 
-    // Se o tempo for maior que 2 minutos, o custo adicional será R$ 1,50 por minuto
+    // Se o tempo inserido for maior que 2 minutos, calcula o custo adicional
     if (timeInMinutes > 2) {
       const additionalMinutes = timeInMinutes - 2;
-      cost += additionalMinutes * 1.5;
+      cost += additionalMinutes * 1.5; // Cada minuto adicional custa R$ 1,50
     }
 
-    // Desconto a cada 10 minutos
+    // Calcula o desconto baseado no tempo inserido
+    // A cada 10 minutos adicionais, o custo por minuto diminui 5%
     const discountMultiplier = Math.floor(timeInMinutes / 10) * 0.05;
-    cost *= (1 - discountMultiplier); // Aplica o desconto no custo
+    cost *= (1 - discountMultiplier); // Aplica o desconto ao custo total
 
+    // Verifica se o tempo inserido é superior ao limite de 30 minutos
     if (timeInMinutes > 30) {
+      // Exibe uma mensagem de erro caso o tempo seja superior a 30 minutos
       Alert.alert('Erro', 'O limite de tempo por cliente é de 30 minutos!');
-      return;
+      return; // Interrompe a execução caso o tempo ultrapasse o limite
     }
 
-    setTotalCost(cost.toFixed(2)); // Atualiza o custo total com duas casas decimais
-    setInputVisible(false); // Esconde o input após calcular o preço
-    setCustomTime(''); // Reseta o tempo inserido
+    // Atualiza o custo total do ticket com as regras aplicadas
+    setTotalCost(cost.toFixed(2)); // Formata o custo para duas casas decimais
+
+    // Esconde o campo de input de tempo personalizado após calcular o preço
+    setInputVisible(false);
+
+    // Reseta o valor do campo de input para limpar a tela
+    setCustomTime('');
   };
 
   return (
     <View style={{ padding: 20 }}>
       <Text style={{ fontSize: 20, marginBottom: 20 }}>Validação de Tickets</Text>
 
+      {/* Botões para selecionar os tickets de 1 e 2 minutos */}
       <Button title="1 Minuto - R$ 3,00" onPress={handleOneMinuteTicket} />
       <Button title="2 Minutos - R$ 5,00" onPress={handleTwoMinutesTicket} />
+      
+      {/* Botão para exibir o campo de input para tempo indeterminado */}
       <Button title="Tempo Indeterminado" onPress={handleCustomTimeTicket} />
 
+      {/* Campo de input visível apenas quando o usuário escolhe o tempo personalizado */}
       {isInputVisible && (
         <View style={{ marginTop: 20 }}>
           <Text>Digite o tempo desejado (em minutos):</Text>
@@ -67,14 +93,16 @@ export default function TicketValidationApp() {
               marginVertical: 10,
               fontSize: 16,
             }}
-            keyboardType="numeric"
-            value={customTime}
-            onChangeText={setCustomTime}
+            keyboardType="numeric" // Restringe o input para números
+            value={customTime} // Valor do campo de input controlado pelo state
+            onChangeText={setCustomTime} // Atualiza o state quando o usuário digita algo
           />
+          {/* Botão que aciona o cálculo do custo ao clicar */}
           <Button title="Calcular" onPress={handleTimeInput} />
         </View>
       )}
 
+      {/* Exibe o custo total calculado */}
       <Text style={{ marginTop: 20, fontSize: 18 }}>
         Custo Total: R$ {totalCost}
       </Text>
