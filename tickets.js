@@ -110,6 +110,12 @@ export default function TicketValidationApp() {
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
+  // Função para fechar o campo de input
+  const handleCloseInput = () => {
+    setInputVisible(false); // Fecha o campo de input
+    setCustomTime(''); // Limpa o valor do input
+  };
+
   return (
     <View style={{ padding: 20 }}>
       <Text style={{ fontSize: 20, marginBottom: 20 }}>Validação de Tickets</Text>
@@ -137,8 +143,9 @@ export default function TicketValidationApp() {
             value={customTime} // Valor do campo de input controlado pelo state
             onChangeText={setCustomTime} // Atualiza o state quando o usuário digita algo
           />
-          {/* Botão que aciona o cálculo do custo ao clicar */}
+          {/* Botões para calcular o custo e fechar o input */}
           <Button title="Calcular" onPress={handleTimeInput} />
+          <Button title="Fechar" onPress={handleCloseInput} color="red" />
         </View>
       )}
 
