@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, View, Text, Button, TextInput, Alert } from 'react-native';
 
-export default function TicketValidationApp() {
+const App = () => {
   // Estado para controlar o tempo personalizado inserido pelo usuário
   const [customTime, setCustomTime] = useState('');
 
@@ -117,8 +117,8 @@ export default function TicketValidationApp() {
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 20, marginBottom: 20 }}>Validação de Tickets</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Validação de Tickets</Text>
 
       {/* Botões para selecionar os tickets de 1 e 2 minutos */}
       <Button title="1 Minuto - R$ 3,00" onPress={handleOneMinuteTicket} />
@@ -129,16 +129,10 @@ export default function TicketValidationApp() {
 
       {/* Campo de input visível apenas quando o usuário escolhe o tempo personalizado */}
       {isInputVisible && (
-        <View style={{ marginTop: 20 }}>
+        <View style={styles.inputContainer}>
           <Text>Digite o tempo desejado (em minutos):</Text>
           <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: '#ccc',
-              padding: 8,
-              marginVertical: 10,
-              fontSize: 16,
-            }}
+            style={styles.input}
             keyboardType="numeric" // Restringe o input para números
             value={customTime} // Valor do campo de input controlado pelo state
             onChangeText={setCustomTime} // Atualiza o state quando o usuário digita algo
@@ -150,14 +144,43 @@ export default function TicketValidationApp() {
       )}
 
       {/* Exibe o cronômetro com o tempo acumulado */}
-      <Text style={{ marginTop: 20, fontSize: 18 }}>
+      <Text style={styles.timeText}>
         Tempo Acumulado: {formatTime(accumulatedTime)}
       </Text>
 
       {/* Exibe o custo total calculado */}
-      <Text style={{ marginTop: 20, fontSize: 18 }}>
+      <Text style={styles.timeText}>
         Custo Total: R$ {totalCost.toFixed(2)}
       </Text>
-    </View>
+    </ScrollView>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    flexGrow: 1,
+  },
+  title: {
+    fontSize: 20,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  inputContainer: {
+    marginTop: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    marginVertical: 10,
+    fontSize: 16,
+  },
+  timeText: {
+    marginTop: 20,
+    fontSize: 18,
+    textAlign: 'center',
+  },
+});
+
+export default App;
