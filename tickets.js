@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, TextInput, Alert } from 'react-native';
 
 export default function TicketValidationApp() {
@@ -11,16 +11,22 @@ export default function TicketValidationApp() {
   // Estado para controlar a visibilidade do campo de input de tempo personalizado
   const [isInputVisible, setInputVisible] = useState(false);
 
+  // Estado para armazenar o tempo acumulado
+  const [accumulatedTime, setAccumulatedTime] = useState(0);
+
+  // Estado para controlar se o cronômetro está ativo ou não
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
   // Função que é chamada quando o usuário clica no botão de 1 minuto
-  // O custo de 1 minuto é fixo em R$ 3,00
   const handleOneMinuteTicket = () => {
-    setTotalCost(3); // 1 minuto custa R$ 3,00
+    setTotalCost(prevCost => prevCost + 3); // Adiciona R$ 3,00 para 1 minuto
+    addTimeToTimer(1); // Adiciona 1 minuto ao cronômetro
   };
 
   // Função que é chamada quando o usuário clica no botão de 2 minutos
-  // O custo de 2 minutos é fixo em R$ 5,00
   const handleTwoMinutesTicket = () => {
-    setTotalCost(5); // 2 minutos custam R$ 5,00
+    setTotalCost(prevCost => prevCost + 5); // Adiciona R$ 5,00 para 2 minutos
+    addTimeToTimer(2); // Adiciona 2 minutos ao cronômetro
   };
 
   // Função que exibe o campo de input para o usuário inserir o tempo desejado
@@ -30,14 +36,12 @@ export default function TicketValidationApp() {
 
   // Função que lida com o cálculo do custo quando o usuário insere o tempo personalizado
   const handleTimeInput = () => {
-    // Converte o valor inserido no campo para um número inteiro
     const timeInMinutes = parseInt(customTime, 10);
 
     // Verifica se o tempo inserido é um número válido e maior ou igual a 2 minutos
     if (isNaN(timeInMinutes) || timeInMinutes < 2) {
-      // Exibe uma mensagem de erro caso o valor seja inválido ou menor que 2 minutos
       Alert.alert('Erro', 'O tempo deve ser maior que 2 minutos!');
-      return; // Interrompe a execução se o valor não for válido
+      return;
     }
 
     let cost = 5; // O custo dos primeiros 2 minutos é fixo em R$ 5,00
@@ -55,19 +59,55 @@ export default function TicketValidationApp() {
 
     // Verifica se o tempo inserido é superior ao limite de 30 minutos
     if (timeInMinutes > 30) {
-      // Exibe uma mensagem de erro caso o tempo seja superior a 30 minutos
       Alert.alert('Erro', 'O limite de tempo por cliente é de 30 minutos!');
-      return; // Interrompe a execução caso o tempo ultrapasse o limite
+      return;
     }
 
     // Atualiza o custo total do ticket com as regras aplicadas
-    setTotalCost(cost.toFixed(2)); // Formata o custo para duas casas decimais
+    setTotalCost(prevCost => prevCost + cost); // Adiciona ao custo total
+
+    // Adiciona o tempo ao cronômetro
+    addTimeToTimer(timeInMinutes);
 
     // Esconde o campo de input de tempo personalizado após calcular o preço
     setInputVisible(false);
 
     // Reseta o valor do campo de input para limpar a tela
     setCustomTime('');
+  };
+
+  // Função que adiciona o tempo ao cronômetro
+  const addTimeToTimer = (timeInMinutes) => {
+    // Converte minutos para segundos e soma ao tempo acumulado
+    setAccumulatedTime(prevTime => prevTime + timeInMinutes * 60);
+    if (!isTimerRunning) {
+      startTimer(); // Inicia o cronômetro se não estiver rodando
+    }
+  };
+
+  // Função que inicia o cronômetro
+  const startTimer = () => {
+    setIsTimerRunning(true); // Marca o cronômetro como ativo
+
+    // Define um intervalo para atualizar o cronômetro a cada segundo
+    const timerInterval = setInterval(() => {
+      setAccumulatedTime(prevTime => {
+        // Quando o tempo acumulado atinge 0, para o cronômetro
+        if (prevTime <= 0) {
+          clearInterval(timerInterval);
+          setIsTimerRunning(false); // Para o cronômetro
+          return prevTime;
+        }
+        return prevTime - 1; // Decrementa 1 segundo
+      });
+    }, 1000); // Atualiza o cronômetro a cada 1 segundo
+  };
+
+  // Converte o tempo acumulado (em segundos) para minutos e segundos
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
   return (
@@ -102,9 +142,14 @@ export default function TicketValidationApp() {
         </View>
       )}
 
+      {/* Exibe o cronômetro com o tempo acumulado */}
+      <Text style={{ marginTop: 20, fontSize: 18 }}>
+        Tempo Acumulado: {formatTime(accumulatedTime)}
+      </Text>
+
       {/* Exibe o custo total calculado */}
       <Text style={{ marginTop: 20, fontSize: 18 }}>
-        Custo Total: R$ {totalCost}
+        Custo Total: R$ {totalCost.toFixed(2)}
       </Text>
     </View>
   );
