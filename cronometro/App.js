@@ -14,20 +14,20 @@ function leftPad(str, len, ch = "0") {
 
 let interval;
 const App = () => {
-  const [count, setCount] = useState(0);
-  const [status, setStatus] = useState(false);
+  const [contar, contarSet] = useState(0);
+  const [status, statusSet] = useState(false);
 
   useEffect(() => {
     if (status) {
-      interval = setInterval(() => setCount((count) => count + 1), 100);
+      interval = setInterval(() => contarSet((contar) => contar + 1), 100);
     } else {
       clearInterval(interval);
     }
   }, [status]);
 
-  const milisegundos = count % 10;
-  const segundos = Math.floor(count / 10) % 60;
-  const minutos = Math.floor(count / 600);
+  const milisegundos = contar % 10;
+  const segundos = Math.floor(contar / 10) % 60;
+  const minutos = Math.floor(contar / 600);
   const fmt =
     minutos > 0
       ? `${leftPad(minutos, 2)}:${leftPad(
@@ -40,7 +40,7 @@ const App = () => {
     <View style={styles.container}>
       <Text style={styles.display}>{fmt}</Text>
       <View style={{ flexDirection: "row", marginInline: "auto" }}>
-        <Pressable onPress={() => setStatus((status) => !status)}>
+        <Pressable onPress={() => statusSet((status) => !status)}>
           <Text
             style={{
               ...styles.button,
@@ -50,7 +50,7 @@ const App = () => {
             {status ? "Parar" : "Iniciar"}
           </Text>
         </Pressable>
-        <Pressable onPress={() => setCount(0)}>
+        <Pressable onPress={() => contarSet(0)}>
           <Text style={styles.button}>Redefinir</Text>
         </Pressable>
       </View>
